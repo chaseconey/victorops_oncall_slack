@@ -1,7 +1,4 @@
 version: 2.1
-orbs:
-  aws-s3: circleci/aws-s3@1.0.4
-  shield: shield/hook@0.0.1
 jobs:
   test:
     working_directory: ~/victorops_oncall_slack
@@ -29,7 +26,7 @@ jobs:
       - run: mix format --check-formatted
 
   publish:
-    working_directory: ~/shield
+    working_directory: ~/victorops_oncall_slack
     docker:
       - image: circleci/elixir:1.8
     steps:
@@ -40,16 +37,9 @@ jobs:
           name: Docker Build
           command: |
             export IMAGE_NAME="$DOCKER_REPO/$CIRCLE_PROJECT_REPONAME"
-            docker login $DOCKER_REPO -u $ARTIFACTORY_DEPLOY_USER -p $ARTIFACTORY_DEPLOY_KEY
+            docker login -e $DOCKER_HUB_EMAIL -u $DOCKER_HUB_USER_ID -p $DOCKER_HUB_PWD
             docker build . -t $IMAGE_NAME:latest -t $IMAGE_NAME:$CIRCLE_TAG
             docker push $IMAGE_NAME
-
-  notify-shield:
-    docker:
-      - image: circleci/node:latest
-    steps:
-      - shield/notify_artifact_built:
-          token: "$SHIELD_TOKEN"
 
 workflows:
   version: 2
@@ -60,18 +50,9 @@ workflows:
             tags:
               only: /.*/
       - publish:
-          context: artifactory
+          context: dockerhub
           requires:
             - test
-          filters:
-            tags:
-              only: /.*/
-            branches:
-              ignore: /.*/
-      - notify-shield:
-          context: shield
-          requires:
-            - publish
           filters:
             tags:
               only: /.*/
