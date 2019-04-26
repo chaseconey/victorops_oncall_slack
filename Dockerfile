@@ -4,6 +4,6 @@ WORKDIR /var/www/
 
 COPY . .
 
-RUN mix do local.hex --force, local.rebar --force, deps.get --only prod
+RUN mix do local.hex --force, local.rebar --force, deps.get --only prod, compile
 
 CMD mix run --no-halt
