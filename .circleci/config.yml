@@ -36,7 +36,7 @@ jobs:
       - run:
           name: Docker Build
           command: |
-            export IMAGE_NAME="chaseconey/victorops_oncall_slack:tagname"
+            export IMAGE_NAME="chaseconey/victorops_oncall_slack"
             docker login -u $DOCKER_HUB_USER_ID -p $DOCKER_HUB_PWD
             docker build . -t $IMAGE_NAME:latest -t $IMAGE_NAME:$CIRCLE_TAG
             docker push $IMAGE_NAME
