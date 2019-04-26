@@ -1,0 +1,79 @@
+version: 2.1
+orbs:
+  aws-s3: circleci/aws-s3@1.0.4
+  shield: shield/hook@0.0.1
+jobs:
+  test:
+    working_directory: ~/victorops_oncall_slack
+    docker:
+      - image: circleci/elixir:1.8
+    environment:
+      MIX_ENV: test
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - deps-cache-{{ checksum "mix.lock" }}
+      - run: mix local.rebar --force
+      - run: mix local.hex --force
+      - run: mix deps.get
+      - run: mix deps.compile
+      - save_cache:
+          key: deps-cache-{{ checksum "mix.lock" }}
+          paths:
+            - _build
+            - deps
+            - ~/.mix
+      # - run: mix compile --warnings-as-errors
+      # - run: mix test
+      - run: mix format --check-formatted
+
+  publish:
+    working_directory: ~/shield
+    docker:
+      - image: circleci/elixir:1.8
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run:
+          name: Docker Build
+          command: |
+            export IMAGE_NAME="$DOCKER_REPO/$CIRCLE_PROJECT_REPONAME"
+            docker login $DOCKER_REPO -u $ARTIFACTORY_DEPLOY_USER -p $ARTIFACTORY_DEPLOY_KEY
+            docker build . -t $IMAGE_NAME:latest -t $IMAGE_NAME:$CIRCLE_TAG
+            docker push $IMAGE_NAME
+
+  notify-shield:
+    docker:
+      - image: circleci/node:latest
+    steps:
+      - shield/notify_artifact_built:
+          token: "$SHIELD_TOKEN"
+
+workflows:
+  version: 2
+  build-and-publish:
+    jobs:
+      - test:
+          filters:
+            tags:
+              only: /.*/
+      - publish:
+          context: artifactory
+          requires:
+            - test
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
+      - notify-shield:
+          context: shield
+          requires:
+            - publish
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
