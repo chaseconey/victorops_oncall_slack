@@ -13,6 +13,10 @@ defmodule VictoropsOncallSlack.Router do
 
   forward("/slack", to: VictoropsOncallSlack.SlackRouter)
 
+  get "/health" do
+    send_resp(conn, 200, "")
+  end
+
   match _ do
     send_resp(conn, 404, "")
   end
