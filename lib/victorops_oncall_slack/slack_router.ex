@@ -40,20 +40,17 @@ defmodule VictoropsOncallSlack.SlackRouter do
   Example: '/victorops oncall Cards-Dash'
   """
   command(:oncall, fn %{args: args} ->
-    case args do
-      [search] ->
-        case Cache.get_team(search) do
-          %{"team" => team, "oncallNow" => oncall} ->
-            attachment = format_team(team, oncall, true)
+    team = Enum.join(args, " ")
+    IO.inspect(team)
 
-            %{attachments: [attachment]}
+    case Cache.get_team(team) do
+      %{"team" => team, "oncallNow" => oncall} ->
+        attachment = format_team(team, oncall, true)
 
-          _ ->
-            "Problem loading team..."
-        end
+        %{attachments: [attachment]}
 
       _ ->
-        "Please pass a team name! Find the team by calling `/victorops teams`"
+        "Problem loading team..."
     end
   end)
 

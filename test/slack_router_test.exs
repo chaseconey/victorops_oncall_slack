@@ -37,19 +37,29 @@ defmodule VictoropsOncallSlack.SlackRouterTest do
                decoded["text"]
     end
 
-    test "something" do
-      Victorops.MockClient
-      |> expect(:get, fn url, _headers -> %{body: %{message: "rawr"}} end)
+    test "test parsing team names" do
+      :post
+      |> conn("/", %{})
+      |> send_command(SlackRouter, "oncall cards-devops")
+      |> SlackRouter.call([])
 
-      conn =
-        :post
-        |> conn("/", %{})
-        |> send_command(SlackRouter, "oncall team1")
-        |> SlackRouter.call([])
-
-      decoded = Jason.decode!(conn.resp_body)
-
-      IO.inspect(decoded)
+    assert %Plug.Conn{resp_body: body} = conn
+    IO.inspect(body)
     end
+
+    # test "something" do
+    #   Victorops.MockClient
+    #   |> expect(:get, fn url, _headers -> %{body: %{message: "rawr"}} end)
+
+    #   conn =
+    #     :post
+    #     |> conn("/", %{})
+    #     |> send_command(SlackRouter, "oncall team1")
+    #     |> SlackRouter.call([])
+
+    #   decoded = Jason.decode!(conn.resp_body)
+
+    #   IO.inspect(decoded)
+    # end
   end
 end
