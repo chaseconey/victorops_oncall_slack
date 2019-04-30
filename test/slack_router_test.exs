@@ -43,8 +43,8 @@ defmodule VictoropsOncallSlack.SlackRouterTest do
       |> send_command(SlackRouter, "oncall cards-devops")
       |> SlackRouter.call([])
 
-    assert %Plug.Conn{resp_body: body} = conn
-    IO.inspect(body)
+      assert %Plug.Conn{resp_body: body} = conn
+      IO.inspect(body)
     end
 
     # test "something" do

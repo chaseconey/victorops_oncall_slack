@@ -41,7 +41,6 @@ defmodule VictoropsOncallSlack.SlackRouter do
   """
   command(:oncall, fn %{args: args} ->
     team = Enum.join(args, " ")
-    IO.inspect(team)
 
     case Cache.get_team(team) do
       %{"team" => team, "oncallNow" => oncall} ->
