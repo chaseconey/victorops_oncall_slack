@@ -1,5 +1,7 @@
 # VictoropsOncallSlack
 
+[![CircleCI](https://circleci.com/gh/chaseconey/victorops_oncall_slack.svg?style=svg)](https://circleci.com/gh/chaseconey/victorops_oncall_slack)
+
 ## Todo
 
 - [ ] Add a real search to `oncall` command (rather than straight comparison)
