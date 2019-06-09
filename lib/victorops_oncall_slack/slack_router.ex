@@ -26,6 +26,7 @@ defmodule VictoropsOncallSlack.SlackRouter do
           Enum.map(teams, fn %{"team" => team, "oncallNow" => oncall} ->
             format_team(team, oncall)
           end)
+          |> Enum.take(100)
 
         %{attachments: attachments, text: "Teams and their respective on call team members."}
 
